@@ -1,0 +1,159 @@
+# クエリ設定
+# queries: _log_query_config.pyのフック
+#以下fetch_logsに引数として渡される
+#   doc_search_user:出力先のファイル名
+#以下build_kqlで渡される
+#     query_type: "doc_user" テンプレートのkey  
+#     contains_keyword: "Verified Session" テンプレートの{{ contains_keyword }}に入る
+#     workspace: "doc" enumに定義したworkspace_id
+
+queries:
+  #alm_user_count ALM(Chat)の本番利用者数
+  alm_user_count:
+    query_type: "alm_brain_user_count"
+    startswith_keyword: "{dashboardsr"
+    workspace: "alm"
+  #alm_key_stroke_count ALM(Dashboard)の打鍵数
+  alm_stroke_count:
+    query_type: "alm_brain_stroke_count"
+    startswith_keyword: "{extendedUser"
+    workspace: "alm"
+  #brain_user_count Brain(Chat)の本番利用者数
+  brain_user_count:
+    query_type: "alm_brain_user_count"
+    startswith_keyword: "{dashboards"
+    workspace: "brain"
+  #brain_stroke_count Brain(Dashboard)の打鍵数
+  brain_stroke_count:
+    query_type: "alm_brain_stroke_count"
+    startswith_keyword: "{extendedUser"
+    workspace: "brain"
+  #doc_user_count 統合マニュアル検索
+  doc_user_count:
+    query_type: "doc_user_count"
+    contains_keyword: '{\"general_search_qa'
+    workspace: "doc"
+  #doc_key_stroke_count 統合マニュアル検索
+  doc_stroke_count:
+    query_type: "doc_stroke_count"
+    contains_keyword: "{'core': {'display_name'"
+    startswith_keyword: "INFO:"
+    workspace: "doc"
+  #myassistant_user_count MyAssistantの本番利用者数
+  myassistant_user_count:
+    query_type: "myassistant_user_count"
+    startswith_keyword: "MyBookShelfQA"
+    contains_keyword: "Succeeded Generate Answer"
+    workspace: "doc"
+  #myassistant_key_stroke_count MyAssistantの打鍵数
+  myassistant_stroke_count:
+    query_type: "myassistant_stroke_count"
+    contains_keyword: "Succeeded Generate Answer"
+    startswith_keyword: "MyBookShelfQA"
+    workspace: "doc"  
+  #ma_bot_user_count マーケット分析(Market Analysis)Botの本番利用者数
+  ma_bot_user_count:
+    query_type: "ma_bot_user_count"
+    contains_keyword: "question for market report is"
+    workspace: "ma_bot"
+  #ma_bot_stroke_count マーケット分析(Market Analysis)Botの打鍵数
+  ma_bot_stroke_count:
+    query_type: "ma_bot_stroke_count"
+    contains_keyword: "question for market report is"
+    workspace: "ma_bot"
+  #ma_web_user_count マーケット分析(Market Analysis)Webの本番利用者数
+  ma_web_user_count:
+    query_type: "ma_web_user_count"
+    contains_keyword: "Created New Search"
+    workspace: "ma_web"
+  #ma_web_stroke_count マーケット分析(Market Analysis)Webの打鍵数
+  ma_web_stroke_count:
+    query_type: "ma_web_stroke_count"
+    contains_keyword: "Created New Search"
+    workspace: "ma_web"
+  #ca_analysis 会社分析(Company Analysis)の本番利用者数
+  ca_analysis_user_count:
+    query_type: "ca_analysis_user_count"
+    contains_keyword: "Going to search the query"
+    workspace: "ca"
+  #ca_analysis_stroke_count 会社分析(Company Analysis)の打鍵数
+  ca_analysis_stroke_count:
+    query_type: "ca_analysis_stroke_count"
+    contains_keyword: "Going to search the query"
+    workspace: "ca"
+
+  # =====================ここから日次監視用queryの設定===========================
+daily_monitor_queries:
+  daily_alm_chat_count:
+    query_type: "daily_alm_chat_count"
+    contains_keyword: "dummy"
+    workspace: "daily_alm"
+  daily_alm_chat_history:
+    query_type: "daily_alm_chat_history"
+    contains_keyword: "dummy"
+    workspace: "daily_alm"
+  daily_alm_dashboard_count:
+    query_type: "daily_alm_dashboard_count"
+    contains_keyword: "dummy"
+    workspace: "daily_alm"
+  daily_alm_dashboard_history:
+    query_type: "daily_alm_dashboard_history"
+    contains_keyword: "dummy"
+    workspace: "daily_alm"
+  daily_doc_search_count:
+    query_type: "daily_doc_search_count"
+    contains_keyword: "dummy"
+    workspace: "daily_doc"
+  daily_doc_search_history:
+    query_type: "daily_doc_search_history"
+    contains_keyword: "dummy"
+    workspace: "daily_doc"
+  daily_my_assistant_search_count:
+    query_type: "daily_my_assistant_search_count"
+    contains_keyword: "dummy"
+    workspace: "daily_doc"
+  daily_my_assistant_search_history:
+    query_type: "daily_my_assistant_search_history"
+    contains_keyword: "dummy"
+    workspace: "daily_doc"
+  daily_my_assistant_upload_count:
+    query_type: "daily_my_assistant_upload_count"
+    contains_keyword: "dummy"
+    workspace: "daily_doc_k8s"
+  daily_my_assistant_upload_history:
+    query_type: "daily_my_assistant_upload_history"
+    contains_keyword: "dummy"
+    workspace: "daily_doc_k8s"
+  daily_market_report_web_count:
+    query_type: "daily_market_report_web_count"
+    contains_keyword: "dummy"
+    workspace: "daily_ma_web"
+  daily_market_report_web_history:
+    query_type: "daily_market_report_web_history"
+    contains_keyword: "dummy"
+    workspace: "daily_ma_web"
+  daily_market_report_bot_count:
+    query_type: "daily_market_report_bot_count"
+    contains_keyword: "dummy"
+    workspace: "daily_ma_bot"
+  daily_market_report_bot_history:
+    query_type: "daily_market_report_bot_history"
+    contains_keyword: "dummy"
+    workspace: "daily_ma_bot"
+  daily_company_analyze_count:
+    query_type: "daily_company_analyze_count"
+    contains_keyword: "dummy"
+    workspace: "daily_ca"
+  daily_company_analyze_history:
+    query_type: "daily_company_analyze_history"
+    contains_keyword: "dummy"
+    workspace: "daily_ca"
+  daily_brain_count:
+    query_type: "daily_brain_count"
+    contains_keyword: "dummy"
+    workspace: "daily_brain"
+  daily_brain_history:
+    query_type: "daily_brain_history"
+    contains_keyword: "dummy"
+    workspace: "daily_brain"
+  # =====================ここまで日次監視用queryの設定===========================

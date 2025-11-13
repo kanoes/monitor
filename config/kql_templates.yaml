@@ -1,0 +1,654 @@
+# KQLテンプレート定義
+# 各クエリタイプに対応するKQLテンプレート
+
+alm_brain_user_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["dashboards"]
+    | extend Status = LogObject["status"], ExtendedUser = LogObject["user"]
+    | where Status == "Fetched System Dashboards"
+    | extend UserDepartment = tostring(ExtendedUser["department"])
+    | extend UserDisplayName = tostring(ExtendedUser["names"]["primary"])
+    | summarize arg_max(TimeGenerated, UserDepartment) by UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDepartment, UserDisplayName
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["dashboards"]
+    | extend Status = LogObject["status"], ExtendedUser = LogObject["user"]
+    | where Status == "Fetched System Dashboards"
+    | extend UserDepartment = tostring(ExtendedUser["department"])
+    | extend UserDisplayName = tostring(ExtendedUser["names"]["primary"])
+    | where UserDisplayName !startswith "マコーマック ジョン"and UserDisplayName !startswith "浦川 佑介"and UserDisplayName !startswith "横田 雄哉"and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊"and UserDisplayName !startswith "羅 子軒"
+    | summarize arg_max(TimeGenerated, UserDepartment) by UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDepartment, UserDisplayName
+
+alm_brain_stroke_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}"
+    | extend ResultJson = parse_json(ResultDescription) 
+    | extend LogObject = ResultJson["extendedUser"]
+    | extend Status = LogObject["status"], MessageHistory = LogObject["history"], ExtendedUser = LogObject["user"]
+    | where Status == "Updated User History" | extend LastMessage = MessageHistory[-1]
+    | extend LastMessageContents = LastMessage["contents"],
+    LastMessageType = LastMessage["type"]
+    | where LastMessageType != "ai"
+    | extend UserDisplayName = ExtendedUser["id"] | extend UserDepartment = ExtendedUser["department"]
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserDepartment, LastMessageContents, LastMessageType, MessageHistory
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}"
+    | extend ResultJson = parse_json(ResultDescription) 
+    | extend LogObject = ResultJson["extendedUser"]
+    | extend Status = LogObject["status"], MessageHistory = LogObject["history"], ExtendedUser = LogObject["user"]
+    | where Status == "Updated User History" | extend LastMessage = MessageHistory[-1]
+    | extend LastMessageContents = LastMessage["contents"],
+    LastMessageType = LastMessage["type"]
+    | where LastMessageType != "ai"
+    | extend UserDisplayName = ExtendedUser["id"] | extend UserDepartment = ExtendedUser["department"]
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserDepartment, LastMessageContents, LastMessageType, MessageHistory
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+  
+
+
+doc_user_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription has "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm")
+    | extend UserDisplayName = extract(@"display_name': '([^']+)'", 1, ResultDescription)
+    | where UserDisplayName != ""
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated,UserDisplayName
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription has "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm")
+    | extend UserDisplayName = extract(@"display_name': '([^']+)'", 1, ResultDescription)
+    | where UserDisplayName != ""
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated,UserDisplayName
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+  
+
+doc_stroke_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm")
+    | extend Query = extract("query\': \'(.*)\', \'queries", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\': \'(.*)\', \'sourceLi", 1, strcat(ResultDescription))
+    | extend DisplayName = extract("display_name\': \'(.*)\', \'status", 1, strcat(ResultDescription))
+    | order by TimeGenerated asc
+    | project TimeGenerated, DisplayName, Query, Answer  
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription !startswith "{{ startswith_keyword }}" 
+    | extend TimeGenerated = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm")
+    | extend Query = extract("query\': \'(.*)\', \'queries", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\': \'(.*)\', \'sourceLi", 1, strcat(ResultDescription))
+    | extend UserDisplayName = extract("display_name\': \'(.*)\', \'status", 1, strcat(ResultDescription))
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, Query, Answer
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+
+myassistant_user_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}" and ResultDescription contains "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm")
+    | extend UserDisplayName = extract("display_name\': \'(.*)\', \'query", 1, strcat(ResultDescription))
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated, UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}" and ResultDescription contains "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm")
+    | extend UserDisplayName = extract("display_name\': \'(.*)\', \'query", 1, strcat(ResultDescription))
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated, UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+  
+
+myassistant_stroke_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}" and ResultDescription contains "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm")
+    | extend Query = extract("query\'(.*)\', \'status", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\': \'(.*)\', \'sourceList", 1, strcat(ResultDescription))
+    | extend UserDisplayName = extract("display_name\': \'(.*)\', \'query", 1, strcat(ResultDescription))
+    | extend SourceList = extract("sourceList\': \'(.*)\', \'similarResults", 1, strcat(ResultDescription))
+    | extend SimilarResults = extract("similarResults\': \'(.*)\', \'referenceImages", 1, strcat(ResultDescription))
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, Query, Answer, SourceList, SimilarResults, ResultDescription
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{{ startswith_keyword }}" and ResultDescription contains "{{ contains_keyword }}"
+    | extend TimeGenerated = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm")
+    | extend UserDisplayName = extract("display_name\': \'(.*)\', \'query", 1, strcat(ResultDescription))
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated, UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+  
+
+ma_bot_user_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | where ResultDescription !startswith "2"
+    | extend UserDisplayName = extract(@"^(.*?)_", 1, ResultDescription)
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated,UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated,UserDisplayName
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | where ResultDescription !startswith "2"
+    | extend UserDisplayName = extract(@"^(.*?)_", 1, ResultDescription)
+    | where ResultDescription !startswith "マコーマック ジョン" and ResultDescription !startswith "浦川 佑介" and ResultDescription !startswith "横田 雄哉" and ResultDescription !startswith "花山 征人" and ResultDescription !startswith "後藤 朝陽" and ResultDescription !startswith "鍾 啓宏" and ResultDescription !startswith "森本 慎人" and ResultDescription !startswith "辛 ジャスチィン" and ResultDescription !startswith "星野 寛太" and ResultDescription !startswith "石月 由紀子" and ResultDescription !startswith "川島 宏太" and ResultDescription !startswith "曹 新雨" and ResultDescription !startswith "竹内 大瑛" and ResultDescription !startswith "中野 堯斗" and ResultDescription !startswith "田口 優介" and ResultDescription !startswith "東 宏誠" and ResultDescription !startswith "風間 岳志" and ResultDescription !startswith "片山 智博" and ResultDescription !startswith "柳生 昂俊" and ResultDescription !startswith "羅 子軒"
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated,UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated,UserDisplayName
+
+ma_bot_stroke_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | extend UserDisplayName = extract(@"^(.*?)_", 1, ResultDescription)
+    | where ResultDescription !startswith "2"
+    | extend Question = trim(" ", extract(@"question for market report is\s*:\s*(.*)$", 1, ResultDescription))
+    | order by TimeGenerated asc
+    | project TimeGenerated,UserDisplayName,Question
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | extend UserDisplayName = extract(@"^(.*?)_", 1, ResultDescription)
+    | where ResultDescription !startswith "2"
+    | extend Question = trim(" ", extract(@"question for market report is\s*:\s*(.*)$", 1, ResultDescription))
+    | where ResultDescription !startswith "マコーマック ジョン" and ResultDescription !startswith "浦川 佑介" and ResultDescription !startswith "横田 雄哉" and ResultDescription !startswith "花山 征人" and ResultDescription !startswith "後藤 朝陽" and ResultDescription !startswith "鍾 啓宏" and ResultDescription !startswith "森本 慎人" and ResultDescription !startswith "辛 ジャスチィン" and ResultDescription !startswith "星野 寛太" and ResultDescription !startswith "石月 由紀子" and ResultDescription !startswith "川島 宏太" and ResultDescription !startswith "曹 新雨" and ResultDescription !startswith "竹内 大瑛" and ResultDescription !startswith "中野 �尧斗" and ResultDescription !startswith "田口 优介" and ResultDescription !startswith "东 宏诚" and ResultDescription !startswith "风间 岳志" and ResultDescription !startswith "片山 智博" and ResultDescription !startswith "柳生 昂俊" and ResultDescription !startswith "罗 子轩"
+    | order by TimeGenerated asc
+    | project TimeGenerated,UserDisplayName,Question
+
+ma_web_user_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription !contains "emitting" and ResultDescription !contains "Sending packet"
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | extend ResultJson = parse_json(ResultDescription) 
+    | extend ExtendedUser = ResultJson["users"]
+    | extend UserDisplayName = tostring(ExtendedUser["userId"]), UserMessage= ExtendedUser["question"]
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated,UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription !contains "emitting" and ResultDescription !contains "Sending packet"
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | where ResultDescription !contains "市テクパブリック" and ResultDescription !contains "市統E"
+    | extend ResultJson = parse_json(ResultDescription) 
+    | extend ExtendedUser = ResultJson["users"]
+    | extend UserDisplayName = ExtendedUser["userId"], UserMessage= ExtendedUser["question"]
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserMessage
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+
+ma_web_stroke_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription !contains "emitting" and ResultDescription !contains "Sending packet"
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | extend ResultJson = parse_json(ResultDescription) 
+    | extend ExtendedUser = ResultJson["users"]
+    | extend UserDisplayName = ExtendedUser["userId"], UserMessage= ExtendedUser["question"]
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserMessage
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription !contains "emitting" and ResultDescription !contains "Sending packet"
+    | where ResultDescription contains "{{ contains_keyword }}"
+    | where ResultDescription !contains "市テクパブリック" and ResultDescription !contains "市統E"
+    | extend ResultJson = parse_json(ResultDescription) 
+    | extend ExtendedUser = ResultJson["users"]
+    | extend UserDisplayName = ExtendedUser["userId"], UserMessage= ExtendedUser["question"]
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserMessage
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+
+ca_analysis_user_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription contains "room_name"
+    | extend UserDisplayName = tostring(extract("room_name: (.*), search_id", 1, strcat(ResultDescription)))
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated, UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription contains "room_name"
+    | where ResultDescription !contains "市テクパブリック" and ResultDescription !contains "市統E"
+    | extend UserDisplayName = tostring(extract("room_name: (.*), search_id", 1, strcat(ResultDescription)))
+    | summarize TimeGenerated = arg_max(TimeGenerated, *) by UserDisplayName
+    | distinct TimeGenerated, UserDisplayName
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+
+ca_analysis_stroke_count:
+  template_stg: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription contains "room_name"
+    | extend UserDisplayName = extract("room_name: (.*), search_id", 1, strcat(ResultDescription))
+    | extend UserMessage = extract("query: (.*), room_name", 1, strcat(ResultDescription))
+    | summarize arg_max(UserMessage, *) by UserMessage
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserMessage
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription contains "room_name"
+    | where ResultDescription !contains "市テクパブリック" and ResultDescription !contains "市統E"
+    | extend UserDisplayName = extract("room_name: (.*), search_id", 1, strcat(ResultDescription))
+    | extend UserMessage = extract("query: (.*), room_name", 1, strcat(ResultDescription))
+    | summarize arg_max(UserMessage, *) by UserMessage
+    | order by TimeGenerated asc
+    | project TimeGenerated, UserDisplayName, UserMessage
+    | where UserDisplayName !startswith "マコーマック ジョン" and UserDisplayName !startswith "浦川 佑介" and UserDisplayName !startswith "横田 雄哉" and UserDisplayName !startswith "花山 征人" and UserDisplayName !startswith "後藤 朝陽" and UserDisplayName !startswith "鍾 啓宏" and UserDisplayName !startswith "森本 慎人" and UserDisplayName !startswith "辛 ジャスチィン" and UserDisplayName !startswith "星野 寛太" and UserDisplayName !startswith "石月 由紀子" and UserDisplayName !startswith "川島 宏太" and UserDisplayName !startswith "曹 新雨" and UserDisplayName !startswith "竹内 大瑛" and UserDisplayName !startswith "中野 堯斗" and UserDisplayName !startswith "田口 優介" and UserDisplayName !startswith "東 宏誠" and UserDisplayName !startswith "風間 岳志" and UserDisplayName !startswith "片山 智博" and UserDisplayName !startswith "柳生 昂俊" and UserDisplayName !startswith "羅 子軒"
+
+
+# =====================ここから日次監視用query===========================
+daily_alm_chat_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"users"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["users"]
+    | extend Status = LogObject["status"], MessageHistory = LogObject["history"], users = LogObject["user"]
+    | where Status == "Updated User History"
+    | extend LastMessage = MessageHistory[-1]
+    | extend LastMessageContents = LastMessage["contents"], LastMessageType = tostring(LastMessage["type"])
+    | extend UserDisplayName = tostring(users["id"]), UserDepartment = tostring(users["department"])
+    | where UserDepartment !contains "市テクパブリック"
+    | summarize DistinctUserCount = dcount(UserDisplayName),
+              HumanRecordCount  = countif(LastMessageType == "human")
+
+
+daily_alm_chat_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"users"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["users"]
+    | extend Status = LogObject["status"], MessageHistory = LogObject["history"], users = LogObject["user"]
+    | where Status == "Updated User History"
+    | extend LastMessage = MessageHistory[-1]
+    | extend LastMessageContents = LastMessage["contents"], LastMessageType = LastMessage["type"]
+    | extend UserDisplayName = users["id"]
+    | extend UserDepartment = users["department"]
+    | where UserDepartment !contains "市テクパブリック"
+    | where LastMessageType !contains "ai"
+    | project TimeGenerated, UserDisplayName, UserDepartment, LastMessageContents, LastMessageType, MessageHistory
+
+
+daily_alm_dashboard_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"dashboards"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["dashboards"]
+    | extend Status = tostring(LogObject["status"]), ExtendedUser = LogObject["user"]
+    | where Status == "Fetched System Dashboards"
+    | extend UserDisplayName = tostring(ExtendedUser["names"]["displayName"])
+    | where isnotempty(UserDisplayName)
+    | where UserDisplayName !contains "市テクパブリック"
+    | summarize DistinctUserCount = dcount(UserDisplayName),              //利用人数
+              TotalRecordCount  = count()                                //打鍵数
+
+
+daily_alm_dashboard_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"dashboards"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["dashboards"]
+    | extend Status = LogObject["status"], ExtendedUser = LogObject["user"]
+    | where Status == "Fetched System Dashboards"
+    | extend UserDisplayName = ExtendedUser["names"]["displayName"]
+    | project TimeGenerated, UserDisplayName
+    | where UserDisplayName !contains "市テクパブリック"
+
+
+daily_doc_search_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{\"general_search_qa"
+    | extend Timestamp = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm")
+    | extend Query = extract("query\": \"(.*)\", \"display_name", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\": \"(.*)\", \"sourceList", 1, strcat(ResultDescription))
+    | extend DisplayName = extract("display_name\": \"(.*)\", \"answer", 1, strcat(ResultDescription))
+    | where DisplayName !contains "市テクパブリック"
+    | extend SplitNames = split(DisplayName, "／")
+    | extend Name = tostring(SplitNames[0])
+    | extend Department = tostring(SplitNames[1])
+    | project Timestamp, Name, Department, Query, Answer, ResultDescription
+    | summarize DistinctUserCount = dcount(Name),
+              HumanRecordCount  = dcount(Query)
+
+
+daily_doc_search_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "{\"general_search_qa"
+    | extend Timestamp = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm")
+    | extend Query = extract("query\": \"(.*)\", \"display_name", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\": \"(.*)\", \"sourceList", 1, strcat(ResultDescription))
+    | extend DisplayName = extract("display_name\": \"(.*)\", \"answer", 1, strcat(ResultDescription))
+    | where DisplayName !contains "市テクパブリック"
+    | extend SplitNames = split(DisplayName, "／")
+    | extend Name = tostring(SplitNames[0])
+    | extend Department = tostring(SplitNames[1])
+    | project Timestamp, Name, Department, Query, Answer, ResultDescription
+
+
+daily_my_assistant_search_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"my_bookshelf_qa" and ResultDescription has "Generate Answer Finished" and ResultDescription has "display_name" and ResultDescription has "query"
+    | extend Timestamp = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm:ss")
+    | extend DeepSearch = extract("deep_search\\\": (.*), \\\"query", 1, strcat(ResultDescription))
+    | extend Query = extract("query\\\": \\\"(.*)\\\", \\\"total_tokens", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\\\": \\\"(.*)\\\", \\\"sourceList", 1, strcat(ResultDescription))
+    | extend DisplayName = extract("display_name\\\": \\\"(.*)\\\", \\\"thread_id", 1, strcat(ResultDescription))
+    | extend SourceList = extract("sourceList\\\": (.*), \\\"similarResults", 1, strcat(ResultDescription))
+    | extend SimilarResults = extract("similarResults\\\": (.*), \\\"images", 1, strcat(ResultDescription))
+    | extend TotalCost = extract("total_cost\\\": (.*), \\\"search_date", 1, strcat(ResultDescription))
+    | extend SplitNames = split(DisplayName, "／")
+    | extend Name = tostring(SplitNames[0])
+    | extend Department = tostring(SplitNames[1])
+    | where DisplayName !contains "市テクパブリック"
+    | project Timestamp, Name, Department, Query, Answer, SourceList, SimilarResults, DeepSearch, TotalCost, ResultDescription
+    | summarize DistinctNameCount = dcount(Name),                
+              QueryRecordCount  = count() 
+
+
+daily_my_assistant_search_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"my_bookshelf_qa" and ResultDescription has "Generate Answer Finished" and ResultDescription has "display_name" and ResultDescription has "query"
+    | extend Timestamp = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm:ss")
+    | extend DeepSearch = extract("deep_search\": (.*), \"query", 1, strcat(ResultDescription))
+    | extend Query = extract("query\": \"(.*)\", \"total_tokens", 1, strcat(ResultDescription))
+    | extend Answer = extract("answer\": \"(.*)\", \"sourceList", 1, strcat(ResultDescription))
+    | extend DisplayName = extract("display_name\": \"(.*)\", \"thread_id", 1, strcat(ResultDescription))
+    | extend SourceList = extract("sourceList\": (.*), \"similarResults", 1, strcat(ResultDescription))
+    | extend SimilarResults = extract("similarResults\": (.*), \"images", 1, strcat(ResultDescription))
+    | extend TotalCost = extract("total_cost\": (.*), \"search_date", 1, strcat(ResultDescription))
+    | extend SplitNames = split(DisplayName, "／")
+    | extend Name = tostring(SplitNames[0])
+    | extend Department = tostring(SplitNames[1])
+    | where DisplayName !contains "市テクパブリック"
+    | project Timestamp, Name, Department, Query, Answer, SourceList, SimilarResults, DeepSearch, TotalCost, ResultDescription
+
+
+daily_my_assistant_upload_count:
+  template_prod: |
+    ContainerLogV2
+    | where LogMessage contains "Processed File Blob" and LogMessage startswith "{"
+    | extend TimeElapsed = strcat(parse_json(LogMessage)["processor"]["timeElapsed"])
+    | extend FileName = strcat(parse_json(LogMessage)["processor"]["inputs"]["file"]["name"])
+    | extend DisplayName = strcat(parse_json(LogMessage)["processor"]["displayName"])
+    | extend Category = strcat(parse_json(LogMessage)["processor"]["inputs"]["category"]["name"])
+    | extend Categories = strcat(parse_json(LogMessage)["processor"]["inputs"]["categories"])
+    | extend SplitNames = split(DisplayName, "／")
+    | extend Name = tostring(SplitNames[0])
+    | extend Department = tostring(SplitNames[1])
+    | where DisplayName !contains "市テクパブリック"
+    | project TimeGenerated, Name, Department, TimeElapsed, FileName, Category, Categories, PodName, LogMessage
+    | summarize DistinctNameCount = dcount(Name),                 // Nameの重複を除いた件数
+              QueryRecordCount  = count()  // Queryのレコード数（空でない行をカウント）
+
+
+daily_my_assistant_upload_history:
+  template_prod: |
+    ContainerLogV2
+    | where LogMessage contains "Processed File Blob" and LogMessage startswith "{"
+    | extend TimeElapsed = strcat(parse_json(LogMessage)["processor"]["timeElapsed"])
+    | extend FileName = strcat(parse_json(LogMessage)["processor"]["inputs"]["file"]["name"])
+    | extend DisplayName = strcat(parse_json(LogMessage)["processor"]["displayName"])
+    | extend Category = strcat(parse_json(LogMessage)["processor"]["inputs"]["category"]["name"])
+    | extend Categories = strcat(parse_json(LogMessage)["processor"]["inputs"]["categories"])
+    | extend SplitNames = split(DisplayName, "／")
+    | extend Name = tostring(SplitNames[0])
+    | extend Department = tostring(SplitNames[1])
+    | where DisplayName !contains "市テクパブリック"
+    | project TimeGenerated, Name, Department, TimeElapsed, FileName, Category, Categories, PodName, LogMessage
+
+
+daily_market_report_web_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "Created New Search"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend ResultUsers = ResultJson["users"]
+    | extend UserIdFull = ResultUsers["userId"], Question = ResultUsers["question"]
+    | extend UserIdSplit = split(UserIdFull, "／")
+    | extend UserId = strcat(UserIdSplit[0], "／", UserIdSplit[1], "／", UserIdSplit[2])
+    | where UserId !contains "市テクパブリック"
+    | project TimeGenerated, UserId, Question
+    | summarize DistinctNameCount = dcount(UserId),                 // Nameの重複を除いた件数
+              QueryRecordCount  = count()  // Queryのレコード数（空でない行をカウント
+
+
+daily_market_report_web_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "Created New Search"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend ResultUsers = ResultJson["users"]
+    | extend UserIdFull = ResultUsers["userId"], Question = ResultUsers["question"]
+    | extend UserIdSplit = split(UserIdFull, "／")
+    | extend UserId = strcat(UserIdSplit[0], "／", UserIdSplit[1], "／", UserIdSplit[2])
+    | where UserId !contains "市テクパブリック"
+    | project TimeGenerated, UserId, Question
+
+  
+daily_market_report_bot_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "question for"
+    | extend parts = split(ResultDescription, "'s question for market report is : ")
+    | where array_length(parts) == 2
+    | extend rawUser = tostring(parts[0]), Question = trim(@" \t", tostring(parts[1]))
+    | extend splitDash = split(rawUser, " - "), splitBracket = split(rawUser, "] ")
+    | extend cand1 = splitDash[array_length(splitDash)-1], cand2 = splitBracket[array_length(splitBracket)-1]
+    | extend UserId = iif(rawUser contains " - ", tostring(cand1), iif(rawUser contains "] ", tostring(cand2), rawUser))
+    | extend UserId = trim(@" \t", UserId)
+    | summarize arg_max(TimeGenerated, *) by UserId, Question
+    | where UserId !contains "市テクパブリック"
+    | project TimeGenerated, UserId, Question
+    | summarize
+        DistinctNameCount = dcount(UserId),   // Nameの重複を除いた件数
+        QueryRecordCount  = count()           // Queryのレコード数（空でない行をカウント）
+
+
+daily_market_report_bot_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription contains "question for"
+    | extend parts = split(ResultDescription, "'s question for market report is : ")
+    | where array_length(parts) == 2
+    | extend rawUser = tostring(parts[0]), Question = trim(@" \t", tostring(parts[1]))
+    | extend splitDash = split(rawUser, " - "), splitBracket = split(rawUser, "] ")
+    | extend cand1 = splitDash[array_length(splitDash)-1], cand2 = splitBracket[array_length(splitBracket)-1]
+    | extend UserId = iif(rawUser contains " - ", tostring(cand1), iif(rawUser contains "] ", tostring(cand2), rawUser))
+    | extend UserId = trim(@" \t", UserId)
+    | summarize arg_max(TimeGenerated, *) by UserId, Question
+    | project TimeGenerated, UserId, Question
+
+
+daily_company_analyze_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where isnotempty(ResultDescription)
+    | where ResultDescription has "Going to search the query"
+    | extend rxQuestion = @"Going to search the query:\s*(.*?)(?:,?\s*room_name:|$)", rxRoom     = @"room_name:\s*(.*?)(?:,?\s*search_id:|$)"
+    | extend Question = trim(@" '""", extract(rxQuestion, 1, ResultDescription)), Room     = trim(@" '""", extract(rxRoom,     1, ResultDescription))
+    | where isnotempty(Question) and isnotempty(Room)
+    | where Room !contains "市テクパブリック"
+    | extend fp = tolower(replace_regex(strcat(Room, "|", Question), @"\s+", " "))
+    | extend h = hash_sha256(fp)
+    | serialize
+    | order by TimeGenerated asc
+    | extend prev_h = prev(h), prev_t = prev(TimeGenerated)
+    | where h != prev_h or datetime_diff("second", TimeGenerated, prev_t) > 2
+    | project TimeGenerated, Room, Question
+    | order by TimeGenerated desc
+    | summarize DistinctNameCount = dcount(Room),                 // Nameの重複を除いた件数
+              QueryRecordCount  = count()  // Queryのレコード数（空でない行をカウント）
+
+
+daily_company_analyze_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where isnotempty(ResultDescription)
+    | where ResultDescription has "Going to search the query"
+    | extend rxQuestion = @"Going to search the query:\s*(.*?)(?:,?\s*room_name:|$)", rxRoom     = @"room_name:\s*(.*?)(?:,?\s*search_id:|$)"
+    | extend Question = trim(@" '""", extract(rxQuestion, 1, ResultDescription)), Room     = trim(@" '""", extract(rxRoom,     1, ResultDescription))
+    | where isnotempty(Question) and isnotempty(Room)
+    | extend fp = tolower(replace_regex(strcat(Room, "|", Question), @"\s+", " "))
+    | extend h = hash_sha256(fp)
+    | serialize
+    | order by TimeGenerated asc
+    | extend prev_h = prev(h), prev_t = prev(TimeGenerated)
+    | where h != prev_h or datetime_diff("second", TimeGenerated, prev_t) > 2
+    | where Room !contains "市テクパブリック"
+    | project TimeGenerated, Room, Question
+    | order by TimeGenerated desc
+
+daily_brain_count:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"users"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["users"]
+    | extend Status = LogObject["status"], MessageHistory = LogObject["history"], users = LogObject["user"]
+    | where Status == "Updated User History"
+    | extend LastMessage = MessageHistory[-1]
+    | extend LastMessageContents = LastMessage["contents"], LastMessageType = tostring(LastMessage["type"])
+    | extend UserDisplayName = tostring(users["id"]), UserDepartment = tostring(users["department"])
+    | where UserDepartment !contains "市テクパブリック"
+    | summarize DistinctUserCount = dcount(UserDisplayName),
+              HumanRecordCount  = countif(LastMessageType == "human")
+
+daily_brain_history:
+  template_prod: |
+    AppServiceConsoleLogs
+    | where ResultDescription startswith "{\"users"
+    | extend ResultJson = parse_json(ResultDescription)
+    | extend LogObject = ResultJson["users"]
+    | extend Status = LogObject["status"], MessageHistory = LogObject["history"], users = LogObject["user"]
+    | where Status == "Updated User History"
+    | extend LastMessage = MessageHistory[-1]
+    | extend LastMessageContents = LastMessage["contents"], LastMessageType = LastMessage["type"]
+    | extend UserDisplayName = users["id"]
+    | extend UserDepartment = users["department"]
+    | where UserDepartment !contains "市テクパブリック"
+    | where LastMessageType !contains "ai"
+    | project TimeGenerated, UserDisplayName, UserDepartment, LastMessageContents, LastMessageType, MessageHistory
+
+
+# =====================ここまで日次監視用query===========================
+
+# doc_user:
+#   template: |
+#     AppServiceConsoleLogs 
+#     | where ResultDescription contains "{{ contains_keyword }}" 
+#     | distinct ResultDescription
+#     | extend ResultJson = parse_json(ResultDescription) 
+#     | extend DisplayName = ResultJson["auth"]["authInformation"]["properties"]["names"]["primary"], 
+#         Department = ResultJson["auth"]["authInformation"]["properties"]["department"] 
+#     | where DisplayName != "" 
+#     | project DisplayName, Department
+
+# doc_user_content:
+#   template: |
+#     AppServiceConsoleLogs 
+#     | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription !startswith "{{ startswith_keyword }}"
+#     | extend Timestamp = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm") 
+#     | extend Query = extract("query\': \'(.*)\', \'queries", 1, strcat(ResultDescription)) 
+#     | extend Answer = extract("answer\': \'(.*)\', \'sourceLi", 1, strcat(ResultDescription)) 
+#     | extend DisplayName = extract("display_name\': \'(.*)\', \'status", 1, strcat(ResultDescription)) 
+#     | extend SourceList = extract("sourceList\': \'(.*)\', \'similarResul", 1, strcat(ResultDescription)) 
+#     | distinct Timestamp, DisplayName, Query, Answer, SourceList, ResultDescription 
+#     | where DisplayName !startswith "浦川 佑介" and DisplayName !startswith "東 宏誠" and DisplayName 
+#         !startswith "大石 あい" and DisplayName !startswith "羅 子軒" and DisplayName !startswith "森本 慎人" 
+#         and DisplayName !startswith "曹 新雨" and DisplayName !startswith "竹内 大瑛" and DisplayName 
+#         !startswith "辛 ジャスチィン" and DisplayName !startswith "風間 岳志"
+
+# chat:
+#   template: |
+#     AppServiceConsoleLogs
+#     | where ResultDescription startswith "{{ startswith_keyword }}"  
+#     | extend ResultJson = parse_json(ResultDescription) 
+#     | extend LogObject = ResultJson["extendedUser"] 
+#     | extend Status = LogObject["status"], MessageHistory = LogObject["history"], ExtendedUser = LogObject["user"] 
+#     | where Status == "Updated User History" | extend LastMessage = MessageHistory[-1] 
+#     | extend LastMessageContents = LastMessage["contents"], 
+#     LastMessageType = LastMessage["type"] 
+#     | extend UserDisplayName = ExtendedUser["id"] | extend UserDepartment = ExtendedUser["department"] 
+#     | where UserDepartment != "市統E" 
+#     | project TimeGenerated, UserDisplayName, UserDepartment, LastMessageContents, LastMessageType, MessageHistory
+
+# dashboard:
+#   template: |
+#     AppServiceConsoleLogs
+#     | where ResultDescription startswith "{{ startswith_keyword }}"  
+#     | extend ResultJson = parse_json(ResultDescription) 
+#     | extend LogObject = ResultJson["dashboards"] 
+#     | extend Status = LogObject["status"], ExtendedUser = LogObject["user"]
+#     | where Status == "Fetched System Dashboards" 
+#     | extend UserDepartment = ExtendedUser["department"] 
+#     | extend UserDisplayName = ExtendedUser["names"]["primary"]
+#     | where UserDepartment != "市統E" 
+#     | project TimeGenerated, UserDepartment, UserDisplayName 
+
+# ma_bot:
+#   template: |
+#     AppServiceConsoleLogs
+#     | where ResultDescription contains "{{ contains_keyword }}"
+#     |where ResultDescription !startswith "2"
+
+# ma_web:
+#   template: |
+#     AppServiceConsoleLogs
+#     | where ResultDescription !contains "emitting" and ResultDescription !contains "Sending packet"
+#     | where ResultDescription contains "{{ contains_keyword }}" 
+
+# ca_analysis:
+#   template: |
+#     AppServiceConsoleLogs
+#     | where ResultDescription contains "{{ contains_keyword }}" and ResultDescription contains "room_name"
+#     | where ResultDescription !contains "市テクパブリック" and ResultDescription !contains "市統E"
+#     | extend Name = extract("room_name: (.*), search_id", 1, strcat(ResultDescription))
+#     | extend Query = extract("query: (.*), room_name", 1, strcat(ResultDescription))
+#     | extend SearchId = extract("search_id: (.*)", 1, strcat(ResultDescription))
+#     | distinct TimeGenerated, Name, Query, SearchId, ResultDescription

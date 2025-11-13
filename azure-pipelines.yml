@@ -1,0 +1,36 @@
+trigger:
+  - master
+  - main
+
+resources:
+  - repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+
+stages:
+  - stage: Build
+    displayName: Build image
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+          - task: Docker@2
+            displayName: 'Build image'
+            inputs:
+              command: 'build'
+              containerRegistry: 'crsmbcdevgmtu'
+              repository: 'analytics-service'
+              tags: |
+                $(Build.BuildNumber)
+          - task: Docker@2
+            displayName: 'Push image'
+            inputs:
+              command: 'push'
+              containerRegistry: 'crsmbcdevgmtu'
+              repository: 'analytics-service'
+              tags: |
+                $(Build.BuildNumber)

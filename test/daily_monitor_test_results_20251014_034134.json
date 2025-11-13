@@ -1,0 +1,159 @@
+{
+  "daily_alm_chat_count": {
+    "columns": [
+      "DistinctUserCount",
+      "HumanRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[0, 0]"
+    ]
+  },
+  "daily_alm_chat_history": {
+    "columns": [
+      "TimeGenerated",
+      "UserDisplayName",
+      "UserDepartment",
+      "LastMessageContents",
+      "LastMessageType",
+      "MessageHistory"
+    ],
+    "row_count": 0,
+    "sample_rows": []
+  },
+  "daily_alm_dashboard_count": {
+    "columns": [
+      "DistinctUserCount",
+      "TotalRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[0, 0]"
+    ]
+  },
+  "daily_alm_dashboard_history": {
+    "columns": [
+      "TimeGenerated",
+      "UserDisplayName"
+    ],
+    "row_count": 0,
+    "sample_rows": []
+  },
+  "daily_doc_search_count": {
+    "columns": [
+      "DistinctUserCount",
+      "HumanRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[0, 0]"
+    ]
+  },
+  "daily_doc_search_history": {
+    "columns": [
+      "Timestamp",
+      "Name",
+      "Department",
+      "Query",
+      "Answer",
+      "ResultDescription"
+    ],
+    "row_count": 0,
+    "sample_rows": []
+  },
+  "daily_my_assistant_search_count": {
+    "columns": [
+      "DistinctNameCount",
+      "QueryRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[0, 0]"
+    ]
+  },
+  "daily_my_assistant_search_history": {
+    "columns": [
+      "Timestamp",
+      "Name",
+      "Department",
+      "Query",
+      "Answer",
+      "SourceList",
+      "SimilarResults",
+      "DeepSearch",
+      "TotalCost",
+      "ResultDescription"
+    ],
+    "row_count": 0,
+    "sample_rows": []
+  },
+  "daily_my_assistant_upload_count": {
+    "columns": [
+      "DistinctNameCount",
+      "QueryRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[1, 39]"
+    ]
+  },
+  "daily_my_assistant_upload_history": {
+    "columns": [
+      "TimeGenerated",
+      "Name",
+      "Department",
+      "TimeElapsed",
+      "FileName",
+      "Category",
+      "Categories",
+      "PodName",
+      "LogMessage"
+    ],
+    "row_count": 39,
+    "sample_rows": [
+      "[datetime.datetime(2025, 10, 14, 0, 21, 16, 43135, tzinfo=<isodate.tzinfo.Utc object at 0x1088ed9d0>), '辛 ジャスティン', '市統E', '6', 'x1.txt', 'Parakeet', '[]', 'u-9171acee-5f31-f-2fafa9bf-4b8c-4be1-n-56628-9cgbb', '{\"processor\":{\"status\":\"Processed File Blob\",\"inputs\":{\"category\":{\"id\":\"dd890283-05d2-4a52-aea8-e2db38a3f3fe\",\"name\":\"Parakeet\"},\"dataSize\":11,\"file\":{\"id\":\"2fafa9bf-4b8c-4be1-b4b5-50161c4994d5\",\"name\":\"x1.txt\"},\"categories\":[]},\"configuration\":{\"indexName\":\"dev\"},\"displayName\":\"辛 ジャスティン／市統E／TEAMS (justin xin)／291RoHC4GYDzXL60LWZqVl2rEzr4LQBkUkHHKtHDCqsjtSqAWGJRrJr6MsIImwKMAw681vrqhaIN7EQtZK1bc996g\",\"timeElapsed\":6}}']",
+      "[datetime.datetime(2025, 10, 14, 0, 22, 2, 448983, tzinfo=<isodate.tzinfo.Utc object at 0x1088ed9d0>), '辛 ジャスティン', '市統E', '13', 'crawl_whitelist ドメイン整理（20241112）.xlsx', 'Parakeet', '[]', 'u-9171acee-5f31-f-f2c45422-a081-4458-n-17496-27fgw', '{\"processor\":{\"status\":\"Processed File Blob\",\"inputs\":{\"category\":{\"id\":\"dd890283-05d2-4a52-aea8-e2db38a3f3fe\",\"name\":\"Parakeet\"},\"dataSize\":11090,\"file\":{\"id\":\"f2c45422-a081-4458-886a-f749cbf089c6\",\"name\":\"crawl_whitelist ドメイン整理（20241112）.xlsx\"},\"categories\":[]},\"configuration\":{\"indexName\":\"dev\"},\"displayName\":\"辛 ジャスティン／市統E／TEAMS (justin xin)／291RoHC4GYDzXL60LWZqVl2rEzr4LQBkUkHHKtHDCqsjtSqAWGJRrJr6MsIImwKMAw681vrqhaIN7EQtZK1bc996g\",\"timeElapsed\":13}}']",
+      "[datetime.datetime(2025, 10, 14, 0, 22, 6, 486413, tzinfo=<isodate.tzinfo.Utc object at 0x1088ed9d0>), '辛 ジャスティン', '市統E', '8', 'crawl_whitelist ドメイン整理（20241105）.xlsx', 'Parakeet', '[]', 'u-9171acee-5f31-f-6c8218f5-0006-477c-n-90504-s7l2q', '{\"processor\":{\"status\":\"Processed File Blob\",\"inputs\":{\"category\":{\"id\":\"dd890283-05d2-4a52-aea8-e2db38a3f3fe\",\"name\":\"Parakeet\"},\"dataSize\":22184,\"file\":{\"id\":\"6c8218f5-0006-477c-8032-e4b5531e1287\",\"name\":\"crawl_whitelist ドメイン整理（20241105）.xlsx\"},\"categories\":[]},\"configuration\":{\"indexName\":\"dev\"},\"displayName\":\"辛 ジャスティン／市統E／TEAMS (justin xin)／291RoHC4GYDzXL60LWZqVl2rEzr4LQBkUkHHKtHDCqsjtSqAWGJRrJr6MsIImwKMAw681vrqhaIN7EQtZK1bc996g\",\"timeElapsed\":8}}']",
+      "[datetime.datetime(2025, 10, 14, 0, 22, 6, 547348, tzinfo=<isodate.tzinfo.Utc object at 0x1088ed9d0>), '辛 ジャスティン', '市統E', '8', 'FD質問リスト.xlsx', 'Parakeet', '[]', 'u-9171acee-5f31-f-b939a693-3ef6-4bdf-n-33089-4vtbz', '{\"processor\":{\"status\":\"Processed File Blob\",\"inputs\":{\"category\":{\"id\":\"dd890283-05d2-4a52-aea8-e2db38a3f3fe\",\"name\":\"Parakeet\"},\"dataSize\":15842,\"file\":{\"id\":\"b939a693-3ef6-4bdf-bb03-f453e2082707\",\"name\":\"FD質問リスト.xlsx\"},\"categories\":[]},\"configuration\":{\"indexName\":\"dev\"},\"displayName\":\"辛 ジャスティン／市統E／TEAMS (justin xin)／291RoHC4GYDzXL60LWZqVl2rEzr4LQBkUkHHKtHDCqsjtSqAWGJRrJr6MsIImwKMAw681vrqhaIN7EQtZK1bc996g\",\"timeElapsed\":8}}']",
+      "[datetime.datetime(2025, 10, 14, 0, 22, 13, 667397, tzinfo=<isodate.tzinfo.Utc object at 0x1088ed9d0>), '辛 ジャスティン', '市統E', '15', 'INVEST打鍵ログ.xlsx', 'Parakeet', '[]', 'u-9171acee-5f31-f-ed3d7e71-19b1-4083-n-90165-57rk9', '{\"processor\":{\"status\":\"Processed File Blob\",\"inputs\":{\"category\":{\"id\":\"dd890283-05d2-4a52-aea8-e2db38a3f3fe\",\"name\":\"Parakeet\"},\"dataSize\":29501,\"file\":{\"id\":\"ed3d7e71-19b1-4083-9bcc-7f8e6200ac70\",\"name\":\"INVEST打鍵ログ.xlsx\"},\"categories\":[]},\"configuration\":{\"indexName\":\"dev\"},\"displayName\":\"辛 ジャスティン／市統E／TEAMS (justin xin)／291RoHC4GYDzXL60LWZqVl2rEzr4LQBkUkHHKtHDCqsjtSqAWGJRrJr6MsIImwKMAw681vrqhaIN7EQtZK1bc996g\",\"timeElapsed\":15}}']"
+    ]
+  },
+  "daily_market_report_web_count": {
+    "columns": [
+      "DistinctNameCount",
+      "QueryRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[0, 0]"
+    ]
+  },
+  "daily_market_report_web_history": {
+    "columns": [
+      "TimeGenerated",
+      "UserId",
+      "Question"
+    ],
+    "row_count": 0,
+    "sample_rows": []
+  },
+  "daily_company_analyze_count": {
+    "columns": [
+      "DistinctNameCount",
+      "QueryRecordCount"
+    ],
+    "row_count": 1,
+    "sample_rows": [
+      "[0, 0]"
+    ]
+  },
+  "daily_company_analyze_history": {
+    "columns": [
+      "TimeGenerated",
+      "Room",
+      "Question"
+    ],
+    "row_count": 0,
+    "sample_rows": []
+  }
+}
