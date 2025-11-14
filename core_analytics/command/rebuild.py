@@ -15,6 +15,9 @@ from core_analytics.services.email_service import EmailService
 from core_analytics.model.repositories.azure_blob_repository import AzureBlobRepository
 from core_analytics.core.models import ProcessData
 
+import dotenv
+dotenv.load_dotenv()
+
 logger = LoggerSetup.setup_logger()
 
 
