@@ -3,7 +3,7 @@ import os
 import shutil
 from zoneinfo import ZoneInfo
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from core_analytics.config.settings import ConfigurationService
 from core_analytics.model.repositories.azure_log_repository import AzureLogRepository
@@ -46,7 +46,7 @@ def initialize_usage_report_from_template(template_path: Path, output_path: Path
 def process_single_day(target_date: datetime.datetime, config_service: ConfigurationService,
                       log_repository: AzureLogRepository, strategy_factory: QueryStrategyFactory,
                       analytics_service: AnalyticsService, daily_monitor_factory: DailyMonitorFactory,
-                      storage_service: AzureBlobRepository) -> List[str]:
+                      storage_service: Optional[AzureBlobRepository] = None, upload_blob: bool = True) -> List[str]:
     """Process data for a single day and generate reports."""
     jst = ZoneInfo("Asia/Tokyo")
     target_date_jst = target_date.astimezone(jst)
@@ -92,9 +92,10 @@ def process_single_day(target_date: datetime.datetime, config_service: Configura
     generated_files.append(str(history_report_path))
     logger.info(f"Generated history report: {history_report_path}")
     
-    storage_service.upload_file(str(history_report_path), str(history_report_path))
-    logger.info(f"Uploaded {history_report_path} to blob")
-    
+    if upload_blob and storage_service:
+        storage_service.upload_file(str(history_report_path), str(history_report_path))
+        logger.info(f"Uploaded {history_report_path} to blob")
+
     return generated_files
 
 
@@ -111,6 +112,9 @@ def rebuild():
     date_range = generate_date_range(rebuild_from, rebuild_to)
     logger.info(f"Processing {len(date_range)} days")
     
+    upload_blob = os.environ.get("REBUILD_UPLOAD_BLOB", "true").lower() == "true"
+    send_email = os.environ.get("REBUILD_SEND_EMAIL", "true").lower() == "true"
+
     config_service = ConfigurationService(days_range=1)
     log_repository = AzureLogRepository(config_service)
     strategy_factory = QueryStrategyFactory()
@@ -120,13 +124,19 @@ def rebuild():
         strategy_factory
     )
     daily_monitor_factory = DailyMonitorFactory()
-    storage_service = AzureBlobRepository(config_service)
-    
-    try:
-        email_service = EmailService()
-        email_enabled = True
-    except Exception as e:
-        logger.warning(f"Email service not available: {e}")
+    storage_service: Optional[AzureBlobRepository] = None
+    if upload_blob:
+        storage_service = AzureBlobRepository(config_service)
+
+    if send_email:
+        try:
+            email_service = EmailService()
+            email_enabled = True
+        except Exception as e:
+            logger.warning(f"Email service not available: {e}")
+            email_service = None
+            email_enabled = False
+    else:
         email_service = None
         email_enabled = False
     
@@ -150,7 +160,8 @@ def rebuild():
                 strategy_factory,
                 analytics_service,
                 daily_monitor_factory,
-                storage_service
+                storage_service,
+                upload_blob=upload_blob
             )
             
             history_files = [f for f in files if "打鍵履歴" in f]
@@ -162,8 +173,9 @@ def rebuild():
     
     if usage_report_path.exists():
         all_generated_files.append(str(usage_report_path))
-        storage_service.upload_file(str(usage_report_path), str(usage_report_path))
-        logger.info(f"Final upload of usage report to blob")
+        if upload_blob and storage_service:
+            storage_service.upload_file(str(usage_report_path), str(usage_report_path))
+            logger.info(f"Final upload of usage report to blob")
 
     
     if email_enabled and all_generated_files:

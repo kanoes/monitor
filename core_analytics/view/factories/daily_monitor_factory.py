@@ -38,18 +38,24 @@ class DailyMonitorFactory:
         
         return output_path
     
-    def _fill_template_with_data(self, template_path: Path, processed_data: ProcessData, mtd_costs: Optional[Dict[str, float]] = None) -> None:
-        """Fill Excel template with query results."""
+    def _fill_template_with_data(
+        self,
+        template_path: Path,
+        processed_data: ProcessData,
+        target_date: datetime,
+        mtd_costs: Optional[Dict[str, float]] = None,
+    ) -> None:
+        """Fill Excel template with query results for a specific date."""
         try:
             workbook = load_workbook(template_path)
-            
+
             jst = pytz.timezone('Asia/Tokyo')
-            current_date = datetime.now(jst)
-            
+            current_date = target_date.astimezone(jst)
+
             self._ensure_month_sheet_exists(workbook, current_date)
-            
+
             self._fill_daily_data(workbook, processed_data, current_date, mtd_costs)
-            
+
             workbook.save(template_path)
             self.logger.info(f"Successfully filled template: {template_path}")
             
@@ -58,31 +64,37 @@ class DailyMonitorFactory:
             raise
 
     def _ensure_month_sheet_exists(self, workbook: openpyxl.Workbook, current_date: datetime) -> None:
-        """Ensure current month sheet exists; if not, copy previous month, clear ranges, and prefill dates."""
+        """Ensure current month sheet exists, copying template or previous month when needed."""
         try:
             from copy import copy
-            
+            from datetime import timedelta
+            import calendar
+
             sheet_name = f"{current_date.year}年{current_date.month}月"
             if sheet_name in workbook.sheetnames:
                 return
 
-            from datetime import timedelta, date
-            import calendar
+            template_sheet_name = "YYYY年MM月"
+            source_ws = None
 
-            prev_month_last_day = (current_date.replace(day=1) - timedelta(days=1))
-            prev_name = f"{prev_month_last_day.year}年{prev_month_last_day.month}月"
-
-            if prev_name in workbook.sheetnames:
-                prev_ws = workbook[prev_name]
-                new_ws = workbook.copy_worksheet(prev_ws)
-                new_ws.title = sheet_name
-
-                sheets = workbook._sheets
-                idx_prev = sheets.index(prev_ws)
-                idx_new = sheets.index(new_ws)
-                sheets.insert(idx_prev, sheets.pop(idx_new))
+            if template_sheet_name in workbook.sheetnames:
+                source_ws = workbook[template_sheet_name]
             else:
-                new_ws = workbook.create_sheet(sheet_name, 0)
+                prev_month_last_day = (current_date.replace(day=1) - timedelta(days=1))
+                prev_name = f"{prev_month_last_day.year}年{prev_month_last_day.month}月"
+                if prev_name in workbook.sheetnames:
+                    source_ws = workbook[prev_name]
+
+            if source_ws:
+                new_ws = workbook.copy_worksheet(source_ws)
+            else:
+                new_ws = workbook.create_sheet()
+
+            new_ws.title = sheet_name
+
+            sheets = workbook._sheets
+            idx_new = sheets.index(new_ws)
+            sheets.insert(0, sheets.pop(idx_new))
 
             ranges = [("A", "E"), ("G", "M"), ("O", "S"), ("U", "AA"), ("AC", "AE")]
             for start_col, end_col in ranges:
@@ -91,18 +103,18 @@ class DailyMonitorFactory:
                 for r in range(4, 41):
                     for c in range(start_idx, end_idx + 1):
                         cell = new_ws.cell(row=r, column=c)
-                        
+
                         saved_number_format = copy(cell.number_format)
                         saved_border = copy(cell.border)
                         saved_fill = copy(cell.fill)
                         saved_font = copy(cell.font)
                         saved_alignment = copy(cell.alignment)
                         saved_protection = copy(cell.protection)
-                        
+
                         cell.value = None
                         if cell.hyperlink:
                             cell.hyperlink = None
-                        
+
                         cell.number_format = saved_number_format
                         cell.border = saved_border
                         cell.fill = saved_fill
@@ -110,7 +122,6 @@ class DailyMonitorFactory:
                         cell.alignment = saved_alignment
                         cell.protection = saved_protection
 
-            first_day = date(current_date.year, current_date.month, 1)
             last_day_num = calendar.monthrange(current_date.year, current_date.month)[1]
 
             row = 4
@@ -404,8 +415,8 @@ class DailyMonitorFactory:
                 raise FileNotFoundError(f"Template file not found: {template_path}")
             shutil.copy2(template_path, usage_report_path)
         
-        self._fill_template_with_data(usage_report_path, processed_data, mtd_costs)
-        
+        self._fill_template_with_data(usage_report_path, processed_data, end_time, mtd_costs)
+
         return usage_report_path
     
     def _generate_daily_history_report(self, output_path: Path, processed_data: ProcessData, end_time: datetime) -> Path:
