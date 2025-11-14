@@ -279,6 +279,8 @@ ca_analysis_stroke_count:
 daily_alm_chat_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"users"
     | extend ResultJson = parse_json(ResultDescription)
     | extend LogObject = ResultJson["users"]
@@ -295,6 +297,8 @@ daily_alm_chat_count:
 daily_alm_chat_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"users"
     | extend ResultJson = parse_json(ResultDescription)
     | extend LogObject = ResultJson["users"]
@@ -312,6 +316,8 @@ daily_alm_chat_history:
 daily_alm_dashboard_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"dashboards"
     | extend ResultJson = parse_json(ResultDescription)
     | extend LogObject = ResultJson["dashboards"]
@@ -327,6 +333,8 @@ daily_alm_dashboard_count:
 daily_alm_dashboard_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"dashboards"
     | extend ResultJson = parse_json(ResultDescription)
     | extend LogObject = ResultJson["dashboards"]
@@ -340,6 +348,8 @@ daily_alm_dashboard_history:
 daily_doc_search_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription contains "{\"general_search_qa"
     | extend Timestamp = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm")
     | extend Query = extract("query\": \"(.*)\", \"display_name", 1, strcat(ResultDescription))
@@ -357,6 +367,8 @@ daily_doc_search_count:
 daily_doc_search_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription contains "{\"general_search_qa"
     | extend Timestamp = format_datetime(TimeGenerated, "yy-MM-dd-HH:mm")
     | extend Query = extract("query\": \"(.*)\", \"display_name", 1, strcat(ResultDescription))
@@ -372,6 +384,8 @@ daily_doc_search_history:
 daily_my_assistant_search_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"my_bookshelf_qa" and ResultDescription has "Generate Answer Finished" and ResultDescription has "display_name" and ResultDescription has "query"
     | extend Timestamp = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm:ss")
     | extend DeepSearch = extract("deep_search\\\": (.*), \\\"query", 1, strcat(ResultDescription))
@@ -393,6 +407,8 @@ daily_my_assistant_search_count:
 daily_my_assistant_search_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"my_bookshelf_qa" and ResultDescription has "Generate Answer Finished" and ResultDescription has "display_name" and ResultDescription has "query"
     | extend Timestamp = format_datetime(TimeGenerated + 9h, "yy-MM-dd-HH:mm:ss")
     | extend DeepSearch = extract("deep_search\": (.*), \"query", 1, strcat(ResultDescription))
@@ -412,6 +428,8 @@ daily_my_assistant_search_history:
 daily_my_assistant_upload_count:
   template_prod: |
     ContainerLogV2
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where LogMessage contains "Processed File Blob" and LogMessage startswith "{"
     | extend TimeElapsed = strcat(parse_json(LogMessage)["processor"]["timeElapsed"])
     | extend FileName = strcat(parse_json(LogMessage)["processor"]["inputs"]["file"]["name"])
@@ -430,6 +448,8 @@ daily_my_assistant_upload_count:
 daily_my_assistant_upload_history:
   template_prod: |
     ContainerLogV2
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where LogMessage contains "Processed File Blob" and LogMessage startswith "{"
     | extend TimeElapsed = strcat(parse_json(LogMessage)["processor"]["timeElapsed"])
     | extend FileName = strcat(parse_json(LogMessage)["processor"]["inputs"]["file"]["name"])
@@ -446,6 +466,8 @@ daily_my_assistant_upload_history:
 daily_market_report_web_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription contains "Created New Search"
     | extend ResultJson = parse_json(ResultDescription)
     | extend ResultUsers = ResultJson["users"]
@@ -461,6 +483,8 @@ daily_market_report_web_count:
 daily_market_report_web_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription contains "Created New Search"
     | extend ResultJson = parse_json(ResultDescription)
     | extend ResultUsers = ResultJson["users"]
@@ -474,6 +498,8 @@ daily_market_report_web_history:
 daily_market_report_bot_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription contains "question for"
     | extend parts = split(ResultDescription, "'s question for market report is : ")
     | where array_length(parts) == 2
@@ -493,6 +519,8 @@ daily_market_report_bot_count:
 daily_market_report_bot_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription contains "question for"
     | extend parts = split(ResultDescription, "'s question for market report is : ")
     | where array_length(parts) == 2
@@ -508,6 +536,8 @@ daily_market_report_bot_history:
 daily_company_analyze_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where isnotempty(ResultDescription)
     | where ResultDescription has "Going to search the query"
     | extend rxQuestion = @"Going to search the query:\s*(.*?)(?:,?\s*room_name:|$)", rxRoom     = @"room_name:\s*(.*?)(?:,?\s*search_id:|$)"
@@ -529,6 +559,8 @@ daily_company_analyze_count:
 daily_company_analyze_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where isnotempty(ResultDescription)
     | where ResultDescription has "Going to search the query"
     | extend rxQuestion = @"Going to search the query:\s*(.*?)(?:,?\s*room_name:|$)", rxRoom     = @"room_name:\s*(.*?)(?:,?\s*search_id:|$)"
@@ -547,6 +579,8 @@ daily_company_analyze_history:
 daily_brain_count:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"users"
     | extend ResultJson = parse_json(ResultDescription)
     | extend LogObject = ResultJson["users"]
@@ -562,6 +596,8 @@ daily_brain_count:
 daily_brain_history:
   template_prod: |
     AppServiceConsoleLogs
+    | where TimeGenerated >= datetime({{ start_time }})
+    | where TimeGenerated < datetime({{ end_time }})
     | where ResultDescription startswith "{\"users"
     | extend ResultJson = parse_json(ResultDescription)
     | extend LogObject = ResultJson["users"]

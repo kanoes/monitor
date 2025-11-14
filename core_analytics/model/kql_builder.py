@@ -19,7 +19,13 @@ def load_kql_templates() -> dict:
     return templates
 
 
-def build_kql(query_type: str, contains_keyword: str="", startswith_keyword: str="") -> str:
+def build_kql(
+    query_type: str,
+    contains_keyword: str = "",
+    startswith_keyword: str = "",
+    start_time=None,
+    end_time=None,
+) -> str:
     
     # テンプレートを読み込み
     templates = load_kql_templates()
@@ -39,7 +45,11 @@ def build_kql(query_type: str, contains_keyword: str="", startswith_keyword: str
         params["contains_keyword"] = contains_keyword
     if startswith_keyword:
         params["startswith_keyword"] = startswith_keyword
-    
+    if start_time:
+        params["start_time"] = start_time.strftime("%Y-%m-%d %H:%M:%S")
+    if end_time:
+        params["end_time"] = end_time.strftime("%Y-%m-%d %H:%M:%S")
+
     # パラメータの妥当性をチェック
     if not params:
         raise ValueError("contains_keyword または startswith_keyword のいずれかが必要です")

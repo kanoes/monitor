@@ -53,7 +53,9 @@ class AzureLogRepository(ILogRepository):
                 query = build_kql(
                     query_type=query_config.query_type,
                     contains_keyword=query_config.contains_keyword,
-                    startswith_keyword=query_config.startswith_keyword
+                    startswith_keyword=query_config.startswith_keyword,
+                    start_time=start_time,
+                    end_time=end_time,
                 )
                 
                 # Get workspace ID
