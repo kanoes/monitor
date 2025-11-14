@@ -19,7 +19,9 @@ class LogQueryModel:
             query = build_kql(
                 query_type=query_config["query_type"],
                 contains_keyword=query_config.get("contains_keyword"),
-                startswith_keyword=query_config.get("startswith_keyword")
+                startswith_keyword=query_config.get("startswith_keyword"),
+                start_time=start_time,
+                end_time=end_time,
             )
             
             # ワークスペースIDを取得（Controller層から渡される）
