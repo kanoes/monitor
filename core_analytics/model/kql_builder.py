@@ -20,30 +20,38 @@ def load_kql_templates() -> dict:
 
 
 def build_kql(query_type: str, contains_keyword: str="", startswith_keyword: str="") -> str:
-    
+
     # テンプレートを読み込み
     templates = load_kql_templates()
-    
+
     if query_type not in templates:
         available_types = list(templates.keys())
         raise ValueError(f"未知のクエリタイプ: {query_type}. 利用可能: {available_types}")
-    
+
     # テンプレートを取得
-    template_str: str = templates[query_type].get(f"template_{os.getenv('TEMPLATE_TYPE')}")
+    template_type = os.getenv('TEMPLATE_TYPE', 'prod').lower()
+    template_key = f"template_{template_type}"
+    template_str = templates[query_type].get(template_key)
+
+    if not template_str:
+        available_templates = [key for key in templates[query_type].keys() if key.startswith("template_")]
+        raise ValueError(
+            f"テンプレート {template_key} が見つかりません。利用可能: {available_templates}"
+        )
 
     template = Template(template_str)
-    
+
     # パラメータを準備
     params = {}
     if contains_keyword:
         params["contains_keyword"] = contains_keyword
     if startswith_keyword:
         params["startswith_keyword"] = startswith_keyword
-    
+
     # パラメータの妥当性をチェック
     if not params:
         raise ValueError("contains_keyword または startswith_keyword のいずれかが必要です")
-    
+
     # テンプレートをレンダリング
     query = template.render(**params)
 
